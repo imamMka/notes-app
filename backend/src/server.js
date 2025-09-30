@@ -1,10 +1,12 @@
 import express from 'express';
 import { testConnection } from './config/db.js';
 import helloRouter from './routes/helloRoutes.js';
-import noteRouter from './routes/notesRoutes.js'
+import noteRouter from './routes/notesRoutes.js';
+import cors from 'cors';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.use(helloRouter)
