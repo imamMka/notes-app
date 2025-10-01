@@ -45,11 +45,11 @@ export const addNoteHandler = async (req, res) => {
   });
 };
 
-//Mendapatkan catatan berdasarkan ID
-export const getNotesByIdHandler = async (req, res) => {
-  const { id } = req.params;
+//Mendapatkan catatan berdasarkan title
+export const getNotesByTitleHandler = async (req, res) => {
+  const { title } = req.query;
 
-  const [notes] = await pool.query("SELECT * FROM notes WHERE id = ?", [id]);
+  const [notes] = await pool.query("SELECT * FROM notes WHERE title = ?", [title]);
 
   if (notes.length === 0) {
     return res.status(404).json({
@@ -60,7 +60,7 @@ export const getNotesByIdHandler = async (req, res) => {
 
   res.status(200).json({
     status: "success",
-    data: notes[0],
+    data: notes,
   });
 };
 

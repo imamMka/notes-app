@@ -1,7 +1,9 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const [notes, setNotes] = useState([]);
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchResult, setSearchResult] = useState(null);
 
   const fetchNotes = async () => {
     try {
@@ -32,50 +34,107 @@ function App() {
       if (res.ok) {
         setNotes([...notes, result.data]);
       }
-    } catch(error) {
+    } catch (error) {
       console.log("Error adding note", error);
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:3000/notes/${id}`, { method: "DELETE" });
-      fetchNotes(); // refresh list
+      const res = await fetch(`http://localhost:3000/notes/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setNotes((notes) => notes.filter((note) => note.id !== id));
+      }
+      fetchNotes();
     } catch {
       console.log("Error deleting note");
     }
   };
 
-  const getNoteById = (id) => {
-    console.log(id);
+  const getNoteByTitle = async (title) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/notes?title=${encodeURIComponent(title)}`
+      );
+      const result = await res.json();
+
+      return result.data && result.data.length > 0 ? result.data[0] : null;
+    } catch {
+      console.log("Error fetching note by title");
+    }
   };
 
-  const updateNote = async (id, newTitle, newContent) => {
+  const handleUpdateNote = async (id, updateTitle, updateContent) => {
     try {
-      await fetch(`http://localhost:3000/notes/${id}`, {
+      const res = await fetch(`http://localhost:3000/notes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: newTitle,
-          content: newContent,
+          title: updateTitle,
+          content: updateContent,
         }),
       });
-      fetchNotes(); // refresh list
+
+      const result = await res.json();
+
+      setNotes((prevNotes) => {
+        return prevNotes.map((note) => (note.id === id ? result.data : note));
+      });
     } catch {
       console.log("Error updating note");
     }
   };
 
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchTitle) return;
+    const note = await getNoteByTitle(searchTitle);
+    setSearchResult(note);
+  };
+
+
+
   return (
     <>
       <Navbar />
-      <main className="min-h-screen flex flex-col mt-24 items-center">
+      <main className="min-h-screen flex flex-col pt-24 items-center bg-blue-100">
         <NoteForm onAddNote={addNote} />
+
+         <form onSubmit={handleSearch} className="flex gap-2 mb-6 items-center">
+          <input
+            type="text"
+            placeholder="Find note By Title"
+            value={searchTitle}
+            onChange={(e) => setSearchTitle(e.target.value)}
+            className="bg-white rounded px-4 py-2"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Search
+          </button>
+        </form>
+
+         {searchResult && (
+          <div className="mb-6">
+            <h3 className="font-bold mb-2">Hasil Pencarian:</h3>
+            <NoteItem
+              note={searchResult}
+              onDelete={handleDelete}
+              onUpdate={handleUpdateNote}
+            />
+          </div>
+        )}
+
         <NoteList
           notes={notes}
           onDelete={handleDelete}
-          onUpdate={updateNote}
-          onGetById={getNoteById}
+          onUpdate={handleUpdateNote}
+          onGetByTitle={getNoteByTitle}
         />
       </main>
     </>
@@ -108,31 +167,35 @@ const NoteForm = ({ onAddNote }) => {
   };
 
   return (
-    <section className="container max-w-xl px-5 mb-8">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="Title"
-          className="rounded-sm outline outline-gray-400 p-3"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Content"
-          className="resize-y min-h-14 rounded-sm outline outline-gray-400 p-3"
-          required
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white font-semibold rounded-lg py-3"
-        >
-          Add note
-        </button>
-      </form>
-    </section>
+    <main className="w-full flex justify-center bg-blue-100 py-10 px-5">
+      <section className="container max-w-xl px-5 mb-8 w-full p-10 bg-white rounded-lg shadow-md">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">Create Note</h1>
+          <p className="text-sm text-gray-500">Fill in the details below:</p>
+          <input
+            type="text"
+            placeholder="Title"
+            className="rounded-sm outline outline-gray-400 p-3"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="Content"
+            className="resize-y min-h-14 rounded-sm outline outline-gray-400 p-3"
+            required
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white font-semibold rounded-lg py-3  cursor-pointer hover:bg-blue-600 transition-colors"
+          >
+            Add note
+          </button>
+        </form>
+      </section>
+    </main>
   );
 };
 
@@ -143,8 +206,9 @@ const NoteItem = ({ note, onDelete, onUpdate }) => {
 
   const handleEdit = () => setIsEditing(true);
 
-  const handleDelete = () => {
-    onDelete(note.id, editTitle, editContent);
+  const handleCancel = () => {
+    setEditTitle(note.title);
+    setEditContent(note.content);
     setIsEditing(false);
   };
 
@@ -163,7 +227,7 @@ const NoteItem = ({ note, onDelete, onUpdate }) => {
             onChange={(e) => setEditContent(e.target.value)}
           />
           <button
-            className="bg-blue-500 text-white px-3 py-1 rounded"
+            className="bg-green-500 text-white px-3 py-1 rounded"
             onClick={() => {
               onUpdate(note.id, editTitle, editContent);
               setIsEditing(false);
@@ -173,13 +237,13 @@ const NoteItem = ({ note, onDelete, onUpdate }) => {
           </button>
           <button
             className="bg-gray-400 text-white px-3 py-1 rounded mr-2 mx-1"
-            onClick={handleDelete}
+            onClick={handleCancel}
           >
-            Delete
+            Cancel
           </button>
         </>
       ) : (
-<>
+        <>
           <p className="font-medium text-xl">{note.title}</p>
           <p className="text-sm text-gray-500">
             ~{showFormattedDate(note.created_at)}
@@ -201,20 +265,19 @@ const NoteItem = ({ note, onDelete, onUpdate }) => {
           </div>
         </>
       )}
-      
     </div>
   );
-}
+};
 
-
+  
 const NoteList = ({ notes, onDelete, onUpdate }) => {
   return (
-    <section className="container py-8">
-      <h2 className="inline-flex items-center gap-2 text-2xl font-medium mb-6">
+    <section className="container py-8 px-5">
+      <h2 className="inline-flex items-center justify-center gap-2 text-2xl font-medium mb-6">
         <img src="/note.svg" alt="note icon" className="w-8 h-8" />
-        Notes
+        Your Notes
       </h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-center">
         {notes.length > 0 ? (
           notes.map((note) => (
             <NoteItem
@@ -225,7 +288,7 @@ const NoteList = ({ notes, onDelete, onUpdate }) => {
             />
           ))
         ) : (
-          <h1>Data Kosong</h1>
+          <h1 className="">Data Kosong</h1>
         )}
       </div>
     </section>
