@@ -4,6 +4,7 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [searchTitle, setSearchTitle] = useState("");
   const [searchResult, setSearchResult] = useState(null);
+  const [ searchError, setSearchError ] = useState("");
 
   const baseURL ="https://notes-app-iota-murex.vercel.app";
 
@@ -92,9 +93,15 @@ function App() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    setSearchError("");
+    setSearchResult(null);
     if (!searchTitle) return;
     const note = await getNoteByTitle(searchTitle);
-    setSearchResult(note);
+    if(!note ) {
+      setSearchError("Note tidak ditemukan.");
+    } else {
+      setSearchResult(note);
+    }
   };
 
 
@@ -105,21 +112,26 @@ function App() {
       <main className="min-h-screen flex flex-col pt-24 items-center bg-blue-100">
         <NoteForm onAddNote={addNote} />
 
-         <form onSubmit={handleSearch} className="flex gap-2 mb-6 items-center">
+         <form onSubmit={handleSearch} className="container flex justify-between gap-2 max-w-xl w-full">
           <input
             type="text"
-            placeholder="Find note By Title"
+            placeholder="Cari judul Note"
             value={searchTitle}
             onChange={(e) => setSearchTitle(e.target.value)}
-            className="bg-white rounded px-4 py-2"
+            className="bg-white rounded px-4 py-2 w-full"
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
           >
             Search
           </button>
+
         </form>
+
+        {searchError && (
+          <div className="mb-4 text-red-600 font-semibold">{searchError}</div>
+        )}
 
          {searchResult && (
           <div className="mb-6">
