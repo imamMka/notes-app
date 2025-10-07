@@ -5,9 +5,11 @@ function App() {
   const [searchTitle, setSearchTitle] = useState("");
   const [searchResult, setSearchResult] = useState(null);
 
+  const baseURL ="https://notes-app-iota-murex.vercel.app";
+
   const fetchNotes = async () => {
     try {
-      const res = await fetch("http://localhost:3000/notes");
+      const res = await fetch(`${baseURL}/notes`);
 
       const result = await res.json();
 
@@ -23,7 +25,7 @@ function App() {
 
   const addNote = async (newTitle, newContent) => {
     try {
-      const res = await fetch("http://localhost:3000/notes", {
+      const res = await fetch(`${baseURL}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle, content: newContent }),
@@ -41,7 +43,7 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/notes/${id}`, {
+      const res = await fetch(`${baseURL}/notes/${id}`, {
         method: "DELETE",
       });
 
@@ -57,7 +59,7 @@ function App() {
   const getNoteByTitle = async (title) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/notes?title=${encodeURIComponent(title)}`
+        `${baseURL}/notes?title=${encodeURIComponent(title)}`
       );
       const result = await res.json();
 
@@ -69,7 +71,7 @@ function App() {
 
   const handleUpdateNote = async (id, updateTitle, updateContent) => {
     try {
-      const res = await fetch(`http://localhost:3000/notes/${id}`, {
+      const res = await fetch(`${baseURL}/notes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
