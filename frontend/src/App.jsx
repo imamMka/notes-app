@@ -162,8 +162,9 @@ export default App;
 const Navbar = () => {
   return (
     <nav className="w-full fixed top-0 flex justify-center bg-white shadow">
-      <div className="flex justify-between px-5 py-5 container">
-        <img src="/logo.svg" alt="Logo" />
+      <div className="flex items-center px-5 py-5 container">
+        <img src="/logo.svg" alt="Logo" className="w-10"/>
+        <p className="text-lg font-semibold text-[#212C41]">KOINote.com</p>
       </div>
     </nav>
   );
@@ -226,6 +227,12 @@ const NoteItem = ({ note, onDelete, onUpdate }) => {
     setIsEditing(false);
   };
 
+  const handleDeleteClick = () => {
+    if (window.confirm("Yakin ingin menghapus note ini")) {
+      onDelete(note.id);
+    }
+  }
+
   return (
     <div className="rounded-lg shadow-md bg-white w-[300px] p-5">
       {isEditing ? (
@@ -265,14 +272,14 @@ const NoteItem = ({ note, onDelete, onUpdate }) => {
           <p className="mt-2">{note.content}</p>
           <div className="mt-4 flex gap-2">
             <button
-              className="bg-yellow-500 text-white px-3 py-1 rounded"
+              className="bg-yellow-500 text-white px-3 py-1 rounded cursor-pointer"
               onClick={handleEdit}
             >
               Edit
             </button>
             <button
-              className="bg-red-500 text-white px-3 py-1 rounded"
-              onClick={() => onDelete(note.id)}
+              className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
+              onClick={handleDeleteClick}
             >
               Delete
             </button>
