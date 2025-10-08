@@ -209,7 +209,7 @@ const NoteForm = ({ onAddNote, darkMode }) => {
             placeholder="Title"
             className={`rounded-sm  outline-1 p-3 ${
               darkMode
-                ? "bg-[#0D1117] text-[#E5E7EB] outline-[#2E3A46]"
+                ? "bg-[#1E2D3D] text-[#E5E7EB] outline-[#2E3A46]"
                 : "bg-[#FFFFFF] text-[#1F2937] outline-[#E5E7EB]"
             }`}
             required
@@ -220,7 +220,7 @@ const NoteForm = ({ onAddNote, darkMode }) => {
             placeholder="Content"
             className={`rounded-sm  outline-1 p-3 ${
               darkMode
-                ? "bg-[#0D1117] text-[#E5E7EB] outline-[#2E3A46]"
+                ? "bg-[#1E2D3D] text-[#E5E7EB] outline-[#2E3A46]"
                 : "bg-[#FFFFFF] text-[#1F2937] outline-[#E5E7EB]"
             }`}
             required
