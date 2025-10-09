@@ -98,14 +98,14 @@ const Navbar = ({ darkMode, toggleDarkMode }) => (
   >
     <div className="flex items-center px-5 py-5 container w-full justify-between">
       <div className="flex items-center gap-2">
-        <img src="/logo.svg" alt="Logo" className="w-10" />
-        <p
+        <img src="/logo.svg" alt="Logo" className="w-[50px]" />
+        {/* <p
           className={`text-lg font-semibold ${
             darkMode ? "text-[#E5E7EB]" : "text-[#1F2937]"
           }`}
         >
           Note.com
-        </p>
+        </p> */}
       </div>
       <button
         onClick={toggleDarkMode}
@@ -143,6 +143,7 @@ const NoteForm = ({ onAddNote, darkMode }) => {
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold">Create Note</h1>
+        <p>lorem ipsum dolor sit amet</p>
         <input
           type="text"
           placeholder="Title"
